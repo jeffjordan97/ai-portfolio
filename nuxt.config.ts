@@ -39,8 +39,24 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    // LLM Provider Configuration
+    llmProvider: process.env.LLM_PROVIDER || 'anthropic',
+
+    // Anthropic (Claude)
+    anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
+    anthropicModel: process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20241022',
+
+    // OpenAI
     openaiApiKey: process.env.OPENAI_API_KEY || '',
+    openaiModel: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+
+    // Ollama
+    ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
+    ollamaModel: process.env.OLLAMA_MODEL || 'llama3.2',
+
+    // Optional
     githubToken: process.env.GITHUB_TOKEN || '',
+
     public: {
       apiBase: process.env.API_BASE || ''
     }

@@ -1,4 +1,3 @@
-import { openai } from '@ai-sdk/openai'
 import { streamText } from 'ai'
 import { SYSTEM_PROMPT } from './prompt'
 import { getContact } from './tools/getContact'
@@ -11,15 +10,10 @@ import { getSkills } from './tools/getSkills'
 import { getSports } from './tools/getSport'
 
 export default defineLazyEventHandler(async () => {
-  const config = useRuntimeConfig()
-  const apiKey = config.openaiApiKey
+  // Get the configured LLM model
+  const llmConfig = getLLMModel()
 
-  if (!apiKey) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'OpenAI API key is not configured',
-    })
-  }
+  console.log(`[Chat API] Using LLM provider: ${llmConfig.provider}`)
 
   return defineEventHandler(async (event) => {
     try {
@@ -47,7 +41,7 @@ export default defineLazyEventHandler(async () => {
       }
 
       const result = streamText({
-        model: openai('gpt-4o-mini', { apiKey }),
+        model: llmConfig.model,
         messages,
         toolCallStreaming: true,
         tools,
