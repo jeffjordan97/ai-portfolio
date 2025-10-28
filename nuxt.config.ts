@@ -64,5 +64,15 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: 'node-server'
+  },
+
+  vite: {
+    optimizeDeps: {
+      include: ['@ai-sdk/vue', 'ai']
+    }
+  },
+
+  build: {
+    transpile: ['@ai-sdk/vue']
   }
 })
