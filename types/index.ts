@@ -1,5 +1,3 @@
-import type { Message } from 'ai'
-
 /**
  * Available LLM providers
  */
@@ -36,12 +34,18 @@ export interface LLMInfoResponse {
 }
 
 /**
+ * Base message type for AI chat
+ */
+export interface Message {
+  role: 'user' | 'assistant' | 'system'
+  content: string
+}
+
+/**
  * Chat message with extended properties
  */
 export interface ChatMessage extends Message {
   id: string
-  role: 'user' | 'assistant' | 'system'
-  content: string
   toolInvocations?: ToolInvocation[]
 }
 
