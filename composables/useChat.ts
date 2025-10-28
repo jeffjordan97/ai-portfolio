@@ -1,56 +1,35 @@
-import { useChat as useAIChat } from 'ai/vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import type { ChatMessage } from '~/types'
 
 /**
- * Composable for managing chat state and interactions
- * Wraps the AI SDK's useChat with custom logic
+ * Simple composable for managing chat state
+ * Implements basic chat functionality without external dependencies
  */
 export function useChat() {
   const input = ref('')
+  const messages = ref<ChatMessage[]>([])
   const loadingSubmit = ref(false)
+  const isLoading = ref(false)
   const autoSubmitted = ref(false)
   const chatContainer = ref<HTMLElement | null>(null)
-
-  const {
-    messages,
-    isLoading,
-    append,
-    stop,
-    reload,
-  } = useAIChat({
-    api: '/api/chat',
-    onResponse: () => {
-      loadingSubmit.value = false
-    },
-    onFinish: () => {
-      loadingSubmit.value = false
-    },
-    onError: (error) => {
-      loadingSubmit.value = false
-      console.error('Chat error:', error)
-      // Could add toast notification here
-    },
-  })
 
   /**
    * Get the latest user message
    */
   const latestUserMessage = computed<ChatMessage | null>(() => {
     const userMessages = messages.value.filter((m) => m.role === 'user')
-    return (userMessages[userMessages.length - 1] as ChatMessage) || null
+    return userMessages[userMessages.length - 1] || null
   })
 
   /**
    * Get the current AI message
-   * Returns null if the latest message is from the user
    */
   const currentAIMessage = computed<ChatMessage | null>(() => {
     const aiMessages = messages.value.filter((m) => m.role === 'assistant')
-    const latestAI = (aiMessages[aiMessages.length - 1] as ChatMessage) || null
+    const latestAI = aiMessages[aiMessages.length - 1] || null
     const latestUserIndex = messages.value.findLastIndex((m) => m.role === 'user')
     const latestAIIndex = messages.value.findLastIndex((m) => m.role === 'assistant')
 
-    // Only show AI message if it's after the latest user message
     if (latestAIIndex < latestUserIndex) {
       return null
     }
@@ -71,25 +50,88 @@ export function useChat() {
   })
 
   /**
-   * Check if we're in the empty state (no messages)
+   * Check if we're in the empty state
    */
   const isEmptyState = computed(() => {
     return !currentAIMessage.value && !latestUserMessage.value && !loadingSubmit.value
   })
 
   /**
-   * Submit a query to the chat
+   * Submit a query to the chat API
    */
   const handleSubmitQuery = async (query: string) => {
     if (!query.trim() || isLoading.value) return
 
     loadingSubmit.value = true
+    isLoading.value = true
     input.value = ''
 
-    await append({
+    // Add user message
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
       role: 'user',
       content: query,
-    })
+    }
+    messages.value.push(userMessage)
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: messages.value.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to get response')
+      }
+
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+      let aiResponse = ''
+
+      const aiMessage: ChatMessage = {
+        id: `ai-${Date.now()}`,
+        role: 'assistant',
+        content: '',
+      }
+      messages.value.push(aiMessage)
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          const chunk = decoder.decode(value)
+          const lines = chunk.split('\n')
+
+          for (const line of lines) {
+            if (line.startsWith('0:')) {
+              try {
+                const data = JSON.parse(line.substring(2))
+                if (data) {
+                  aiResponse += data
+                  aiMessage.content = aiResponse
+                }
+              } catch (e) {
+                // Ignore parse errors
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Chat error:', error)
+    } finally {
+      loadingSubmit.value = false
+      isLoading.value = false
+    }
   }
 
   /**
@@ -102,15 +144,15 @@ export function useChat() {
   }
 
   /**
-   * Stop the current generation
+   * Stop the current generation (placeholder)
    */
   const handleStop = () => {
-    stop()
+    isLoading.value = false
     loadingSubmit.value = false
   }
 
   /**
-   * Auto-scroll to bottom of chat
+   * Auto-scroll to bottom
    */
   const scrollToBottom = () => {
     nextTick(() => {
@@ -121,13 +163,20 @@ export function useChat() {
   }
 
   /**
-   * Auto-submit initial query from URL
+   * Handle initial query from URL
    */
   const handleInitialQuery = (query: string | undefined) => {
     if (query && !autoSubmitted.value) {
       autoSubmitted.value = true
       handleSubmitQuery(query)
     }
+  }
+
+  /**
+   * Reload last message (placeholder)
+   */
+  const reload = () => {
+    // Implement if needed
   }
 
   // Watch for new messages and auto-scroll

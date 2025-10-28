@@ -35,11 +35,11 @@
 </template>
 
 <script setup lang="ts">
-import type { Message } from 'ai/vue'
+import type { ChatMessage } from '~/types'
 import { TOOL_NAMES } from '~/constants'
 
 interface Props {
-  message: Message
+  message: ChatMessage
   isLoading?: boolean
 }
 
