@@ -67,9 +67,9 @@
       <!-- Quick-question grid -->
       <div class="mt-4 grid w-full max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3 md:grid-cols-5">
         <Button
-          v-for="{ key, color, icon } in questionConfig"
+          v-for="{ key, question, color, icon } in QUESTION_CONFIG"
           :key="key"
-          @click="goToChat(questions[key])"
+          @click="goToChat(question)"
           variant="outline"
           class="border-border hover:bg-border/30 aspect-square w-full cursor-pointer rounded-2xl border bg-white/30 py-8 shadow-none backdrop-blur-lg active:scale-95 md:p-10"
         >
@@ -84,29 +84,21 @@
 </template>
 
 <script setup lang="ts">
+import { QUESTIONS, QUESTION_CONFIG } from '~/constants'
+
 const input = ref('')
 const router = useRouter()
 
-const questions = {
-  Me: 'Who are you? I want to know more about you.',
-  Projects: 'What are your projects? What are you working on right now?',
-  Skills: 'What are your skills? Give me a list of your soft and hard skills.',
-  Fun: 'What\'s the craziest thing you\'ve ever done? What are your hobbies?',
-  Contact: 'How can I contact you?',
-} as const
-
-const questionConfig = [
-  { key: 'Me', color: '#329696', icon: 'lucide:laugh' },
-  { key: 'Projects', color: '#3E9858', icon: 'lucide:briefcase-business' },
-  { key: 'Skills', color: '#856ED9', icon: 'lucide:layers' },
-  { key: 'Fun', color: '#B95F9D', icon: 'lucide:party-popper' },
-  { key: 'Contact', color: '#C19433', icon: 'lucide:user-round-search' },
-] as const
-
+/**
+ * Navigate to chat page with a query
+ */
 const goToChat = (query: string) => {
   router.push(`/chat?query=${encodeURIComponent(query)}`)
 }
 
+/**
+ * Handle form submission
+ */
 const submitQuery = () => {
   if (input.value.trim()) {
     goToChat(input.value.trim())

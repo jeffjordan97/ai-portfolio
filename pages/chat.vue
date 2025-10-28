@@ -108,110 +108,36 @@
 </template>
 
 <script setup lang="ts">
-import { useChat } from 'ai/vue'
+import { HEADER_HEIGHTS } from '~/constants'
 
 const route = useRoute()
-const input = ref('')
-const loadingSubmit = ref(false)
-const autoSubmitted = ref(false)
-const chatContainer = ref<HTMLElement | null>(null)
+const chat = useChat()
+
+// Destructure chat composable
+const {
+  input,
+  loadingSubmit,
+  chatContainer,
+  isLoading,
+  latestUserMessage,
+  currentAIMessage,
+  hasActiveTool,
+  isEmptyState,
+  handleSubmitQuery,
+  handleSubmit,
+  handleStop,
+  handleInitialQuery,
+} = chat
+
+// Computed properties
+const headerHeight = computed(() => {
+  return hasActiveTool.value ? HEADER_HEIGHTS.withTool : HEADER_HEIGHTS.withoutTool
+})
 
 const initialQuery = computed(() => route.query.query as string | undefined)
 
-// Use the AI SDK's useChat composable
-const {
-  messages,
-  isLoading,
-  append,
-  stop,
-  reload,
-} = useChat({
-  api: '/api/chat',
-  onResponse: () => {
-    loadingSubmit.value = false
-  },
-  onFinish: () => {
-    loadingSubmit.value = false
-  },
-  onError: (error) => {
-    loadingSubmit.value = false
-    console.error('Chat error:', error)
-  },
-})
-
-// Computed properties
-const latestUserMessage = computed(() => {
-  const userMessages = messages.value.filter((m) => m.role === 'user')
-  return userMessages[userMessages.length - 1] || null
-})
-
-const currentAIMessage = computed(() => {
-  const aiMessages = messages.value.filter((m) => m.role === 'assistant')
-  const latestAI = aiMessages[aiMessages.length - 1] || null
-  const latestUserIndex = messages.value.findLastIndex((m) => m.role === 'user')
-  const latestAIIndex = messages.value.findLastIndex((m) => m.role === 'assistant')
-
-  // Only show AI message if it's after the latest user message
-  if (latestAIIndex < latestUserIndex) {
-    return null
-  }
-
-  return latestAI
-})
-
-const hasActiveTool = computed(() => {
-  return false // Simplified for now
-})
-
-const isEmptyState = computed(() => {
-  return !currentAIMessage.value && !latestUserMessage.value && !loadingSubmit.value
-})
-
-const headerHeight = computed(() => {
-  return hasActiveTool.value ? 100 : 180
-})
-
-// Methods
-const handleSubmitQuery = async (query: string) => {
-  if (!query.trim() || isLoading.value) return
-
-  loadingSubmit.value = true
-  input.value = ''
-
-  await append({
-    role: 'user',
-    content: query,
-  })
-}
-
-const handleSubmit = () => {
-  if (input.value.trim()) {
-    handleSubmitQuery(input.value)
-  }
-}
-
-const handleStop = () => {
-  stop()
-  loadingSubmit.value = false
-}
-
-// Auto-submit initial query
+// Handle initial query on mount
 onMounted(() => {
-  if (initialQuery.value && !autoSubmitted.value) {
-    autoSubmitted.value = true
-    handleSubmitQuery(initialQuery.value)
-  }
+  handleInitialQuery(initialQuery.value)
 })
-
-// Auto-scroll to bottom
-watch(
-  () => messages.value.length,
-  () => {
-    nextTick(() => {
-      if (chatContainer.value) {
-        chatContainer.value.scrollTop = chatContainer.value.scrollHeight
-      }
-    })
-  }
-)
 </script>

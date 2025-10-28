@@ -21,16 +21,11 @@
 </template>
 
 <script setup lang="ts">
+import { CHAT_SUGGESTIONS } from '~/constants'
+
 const emit = defineEmits<{
   submitQuery: [query: string]
 }>()
 
-const suggestions = [
-  'Tell me about yourself',
-  'What are your main skills?',
-  'Show me your projects',
-  'What are you working on?',
-  'How can I contact you?',
-  'What do you do for fun?',
-]
+const suggestions = CHAT_SUGGESTIONS
 </script>

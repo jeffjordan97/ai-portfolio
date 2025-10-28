@@ -36,6 +36,7 @@
 
 <script setup lang="ts">
 import type { Message } from 'ai/vue'
+import { TOOL_NAMES } from '~/constants'
 
 interface Props {
   message: Message
@@ -44,6 +45,9 @@ interface Props {
 
 const props = defineProps<Props>()
 
+/**
+ * Extract text content from message
+ */
 const textContent = computed(() => {
   if (typeof props.message.content === 'string') {
     return props.message.content
@@ -51,6 +55,9 @@ const textContent = computed(() => {
   return ''
 })
 
+/**
+ * Extract tool invocation results
+ */
 const toolResults = computed(() => {
   const results: any[] = []
 
@@ -69,17 +76,10 @@ const toolResults = computed(() => {
   return results
 })
 
+/**
+ * Get display name for tool
+ */
 const getToolName = (toolName: string) => {
-  const names: Record<string, string> = {
-    getPresentation: 'About Me',
-    getProjects: 'My Projects',
-    getSkills: 'My Skills',
-    getContact: 'Contact Information',
-    getResume: 'Resume',
-    getSports: 'Sports & Activities',
-    getCrazy: 'Adventures',
-    getInternship: 'Opportunities',
-  }
-  return names[toolName] || toolName
+  return TOOL_NAMES[toolName] || toolName
 }
 </script>
