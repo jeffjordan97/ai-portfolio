@@ -95,32 +95,72 @@ export function useChat() {
       const reader = response.body?.getReader()
       const decoder = new TextDecoder()
       let aiResponse = ''
+      let buffer = ''
 
       const aiMessage: ChatMessage = {
         id: `ai-${Date.now()}`,
         role: 'assistant',
         content: '',
+        toolInvocations: [],
       }
       messages.value.push(aiMessage)
+
+      loadingSubmit.value = false
 
       if (reader) {
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
 
-          const chunk = decoder.decode(value)
-          const lines = chunk.split('\n')
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
+          buffer = lines.pop() || ''
 
           for (const line of lines) {
-            if (line.startsWith('0:')) {
+            if (!line.trim()) continue
+
+            // Text delta (type 0)
+            if (line.startsWith('0:"')) {
               try {
-                const data = JSON.parse(line.substring(2))
-                if (data) {
-                  aiResponse += data
-                  aiMessage.content = aiResponse
+                // Extract string content between quotes, handling escaped quotes
+                const content = line.substring(2)
+                const parsed = JSON.parse(content)
+                aiResponse += parsed
+                aiMessage.content = aiResponse
+              } catch (e) {
+                console.error('Error parsing text delta:', e)
+              }
+            }
+            // Tool call (type 9)
+            else if (line.startsWith('9:')) {
+              try {
+                const toolCall = JSON.parse(line.substring(2))
+                if (!aiMessage.toolInvocations) {
+                  aiMessage.toolInvocations = []
+                }
+                aiMessage.toolInvocations.push({
+                  state: 'call',
+                  toolCallId: toolCall.toolCallId,
+                  toolName: toolCall.toolName,
+                  args: toolCall.args,
+                })
+              } catch (e) {
+                console.error('Error parsing tool call:', e)
+              }
+            }
+            // Tool result (type a)
+            else if (line.startsWith('a:')) {
+              try {
+                const toolResult = JSON.parse(line.substring(2))
+                const invocation = aiMessage.toolInvocations?.find(
+                  (t) => t.toolCallId === toolResult.toolCallId
+                )
+                if (invocation) {
+                  invocation.state = 'result'
+                  invocation.result = toolResult.result
                 }
               } catch (e) {
-                // Ignore parse errors
+                console.error('Error parsing tool result:', e)
               }
             }
           }
