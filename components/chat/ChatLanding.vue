@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-col items-center gap-6 px-4 py-8">
-    <h2 class="text-2xl font-bold text-center md:text-3xl">
+    <h2 class="text-2xl font-bold text-center tracking-tight md:text-3xl bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
       What would you like to know?
     </h2>
-    <p class="text-center text-muted-foreground max-w-md">
+    <p class="text-center text-muted-foreground max-w-md leading-relaxed">
       Ask me anything about my experience, projects, skills, or just chat!
     </p>
 
@@ -12,9 +12,9 @@
         v-for="suggestion in suggestions"
         :key="suggestion"
         @click="$emit('submitQuery', suggestion)"
-        class="rounded-xl border border-border bg-card p-4 text-left transition-colors hover:bg-accent hover:text-accent-foreground"
+        class="group rounded-xl border border-border bg-card p-4 text-left shadow-sm transition-all hover:border-border/80 hover:bg-card hover:shadow-md active:scale-[0.98]"
       >
-        {{ suggestion }}
+        <p class="text-sm text-foreground leading-relaxed group-hover:text-foreground">{{ suggestion }}</p>
       </button>
     </div>
   </div>
