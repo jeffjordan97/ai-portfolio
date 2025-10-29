@@ -1,9 +1,9 @@
 <template>
-  <div class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pb-10 md:pb-20">
+  <div class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pb-10 md:pb-20 bg-gradient-to-b from-background via-background to-muted/20">
     <!-- Big blurred footer word -->
     <div class="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center overflow-hidden">
       <div
-        class="hidden bg-gradient-to-b from-neutral-500/10 to-neutral-500/0 bg-clip-text text-[10rem] font-black leading-none text-transparent select-none sm:block lg:text-[16rem]"
+        class="hidden bg-gradient-to-b from-muted-foreground/10 to-transparent bg-clip-text text-[10rem] font-black leading-none text-transparent select-none sm:block lg:text-[16rem]"
         style="margin-bottom: -2.5rem"
       >
         Portfolio
@@ -17,10 +17,10 @@
       :enter="{ opacity: 1, y: 0, transition: { type: 'ease', duration: 800 } }"
       class="z-1 mt-24 mb-8 flex flex-col items-center text-center md:mt-4 md:mb-12"
     >
-      <h2 class="text-secondary-foreground mt-1 text-xl font-semibold md:text-2xl">
+      <h2 class="text-muted-foreground mt-1 text-xl font-medium tracking-tight md:text-2xl">
         Hey, I'm Your Name 👋
       </h2>
-      <h1 class="text-4xl font-bold sm:text-5xl md:text-6xl lg:text-7xl">
+      <h1 class="mt-2 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
         AI Portfolio
       </h1>
     </div>
@@ -46,18 +46,18 @@
         @submit.prevent="submitQuery"
         class="relative w-full max-w-lg"
       >
-        <div class="mx-auto flex items-center rounded-full border border-neutral-200 bg-white/30 py-2.5 pr-2 pl-6 backdrop-blur-lg transition-all hover:border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:border-neutral-600">
+        <div class="mx-auto flex items-center rounded-full border border-border bg-card/50 py-2.5 pr-2 pl-6 backdrop-blur-md shadow-sm transition-all hover:border-border/80 hover:shadow-md focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20">
           <input
             v-model="input"
             type="text"
             placeholder="Ask me anything…"
-            class="w-full border-none bg-transparent text-base text-neutral-800 placeholder:text-neutral-500 focus:outline-none dark:text-neutral-200 dark:placeholder:text-neutral-500"
+            class="w-full border-none bg-transparent text-base text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           <button
             type="submit"
             :disabled="!input.trim()"
             aria-label="Submit question"
-            class="flex items-center justify-center rounded-full bg-[#0171E3] p-2.5 text-white transition-colors hover:bg-blue-600 disabled:opacity-70 dark:bg-blue-600 dark:hover:bg-blue-700"
+            class="flex items-center justify-center rounded-full bg-primary p-2.5 text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Icon name="lucide:arrow-right" class="h-5 w-5" />
           </button>
@@ -71,11 +71,11 @@
           :key="key"
           @click="goToChat(question)"
           variant="outline"
-          class="border-border hover:bg-border/30 aspect-square w-full cursor-pointer rounded-2xl border bg-white/30 py-8 shadow-none backdrop-blur-lg active:scale-95 md:p-10"
+          class="group aspect-square w-full cursor-pointer rounded-2xl border border-border bg-card/50 py-8 shadow-sm backdrop-blur-sm transition-all hover:border-border/80 hover:bg-card hover:shadow-md active:scale-95 md:p-10"
         >
-          <div class="flex h-full flex-col items-center justify-center gap-1 text-gray-700">
-            <Icon :name="icon" :style="{ color }" class="h-5.5 w-5.5" />
-            <span class="text-xs font-medium sm:text-sm">{{ key }}</span>
+          <div class="flex h-full flex-col items-center justify-center gap-2 text-foreground">
+            <Icon :name="icon" :style="{ color }" class="h-6 w-6 transition-transform group-hover:scale-110" />
+            <span class="text-xs font-medium tracking-tight sm:text-sm">{{ key }}</span>
           </div>
         </Button>
       </div>

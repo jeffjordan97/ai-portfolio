@@ -2,10 +2,10 @@
   <div class="relative h-screen overflow-hidden">
     <!-- Header with Avatar -->
     <div
-      class="fixed top-0 right-0 left-0 z-50"
+      class="fixed top-0 right-0 left-0 z-50 backdrop-blur-sm"
       :style="{
         background:
-          'linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.95) 30%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 100%)',
+          'linear-gradient(to bottom, hsl(var(--background)) 0%, hsl(var(--background) / 0.95) 30%, hsl(var(--background) / 0.8) 50%, transparent 100%)',
       }"
     >
       <div
@@ -39,8 +39,8 @@
           class="mx-auto flex max-w-3xl px-4"
         >
           <div class="flex w-full justify-end">
-            <div class="max-w-[80%] rounded-2xl bg-blue-500 px-4 py-2 text-white">
-              {{ latestUserMessage.content }}
+            <div class="max-w-[80%] rounded-2xl bg-primary px-4 py-3 text-primary-foreground shadow-sm">
+              <p class="text-sm leading-relaxed">{{ latestUserMessage.content }}</p>
             </div>
           </div>
         </div>
@@ -80,11 +80,11 @@
           class="px-4 pt-18"
         >
           <div class="flex w-full">
-            <div class="max-w-[80%] rounded-2xl bg-gray-100 px-4 py-2">
+            <div class="max-w-[80%] rounded-2xl bg-muted px-4 py-3 shadow-sm">
               <div class="flex items-center gap-2">
-                <div class="h-2 w-2 animate-bounce rounded-full bg-gray-400" style="animation-delay: 0ms" />
-                <div class="h-2 w-2 animate-bounce rounded-full bg-gray-400" style="animation-delay: 150ms" />
-                <div class="h-2 w-2 animate-bounce rounded-full bg-gray-400" style="animation-delay: 300ms" />
+                <div class="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60" style="animation-delay: 0ms" />
+                <div class="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60" style="animation-delay: 150ms" />
+                <div class="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60" style="animation-delay: 300ms" />
               </div>
             </div>
           </div>
@@ -92,7 +92,7 @@
       </div>
 
       <!-- Fixed Bottom Bar -->
-      <div class="sticky bottom-0 bg-white px-2 pt-3 md:px-0 md:pb-4">
+      <div class="sticky bottom-0 bg-background/80 backdrop-blur-md border-t border-border/50 px-2 pt-3 md:px-0 md:pb-4">
         <div class="relative flex flex-col items-center gap-3">
           <ChatInput
             v-model="input"
